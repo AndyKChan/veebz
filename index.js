@@ -7,8 +7,16 @@ const PORT = process.env.PORT || 5000
 app.use(express.static(path.join(__dirname, 'public')))
 app.set('views', path.join(__dirname, 'views'))
 app.set('view engine', 'ejs')
+app.use(express.urlencoded());
+
 app.get('/', (req, res) => res.render('index'))
+
 app.get('/makeTeams', (req, res) => res.render('makeTeams'));
+
+app.post('/addPlayerForm', (req, res) => {
+  console.log(req.body);
+  res.end();
+});
 
 http.listen(PORT, () => console.log(`Listening on ${ PORT }`))
 
