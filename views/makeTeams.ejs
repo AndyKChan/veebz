@@ -49,11 +49,12 @@
              Add a Player
         </button>
 
+        <iframe name="hiddenFrame" width="0" height="0" border="0" style="display: none;"></iframe>
         <!-- Modal -->
         <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
-                    <form method="POST" action="/addPlayerForm">
+                    <form method="POST" action="/addPlayerForm" target="hiddenFrame">
                         <div class="modal-body">
                                 <div class="form-group row">
                                     <label for="name" class="col-sm-2 col-form-label">Name</label>
@@ -70,11 +71,16 @@
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                            <button type="submit" class="btn btn-primary">Save changes</button>
+                            <button type="submit" class="btn btn-primary" data-dismiss="modal">Save changes</button>
                         </div>
                     </form>
                 </div>
             </div>
+        </div>
+        <div class="players">
+            <p id="players"><%= players %></p>      
+            <p id="players"><%= players.name %></p>      
+            <p id="players"><%= players.positions %></p>      
         </div>
       </div>
 
