@@ -15,7 +15,7 @@ const createPlayer = (req, res) => {
 const getPlayers = async (req, res) => {
   try {
     const { rows } = await psql.query('SELECT * FROM players');
-    return JSON.stringify(rows);
+    return rows;
   } catch (e) {
     console.log(`Failed to get players: ${e}`);
   }

@@ -1,7 +1,7 @@
 {
   "name": "node-js-template",
   "version": "1.0.0",
-  "description": "joma's template",
+  "description": "andy's template",
   "main": "index.js",
   "dependencies": {
     "dotenv": "^8.1.0",
