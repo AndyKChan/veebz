@@ -26,9 +26,9 @@ app.get('/makeTeams', async (req, res) => {
 });
 
 app.post('/addPlayerForm', async (req, res) => {
-  const players = await db.createPlayer(req, res);
-  console.log(players);
-  //res.send({ players });
+  await db.createPlayer(req, res);
+  const players = await db.getPlayers(req,res);
+  res.render('makeTeams', { players });
 });
 
 http.listen(PORT, () => console.log(`Listening on ${ PORT }`))
