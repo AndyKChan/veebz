@@ -2,10 +2,11 @@ const { psql } = require('./psql.js');
 
 const createPlayer = async (req, res) => {
   const { name, positions } = req.body
+  const positionsArr = [positions];
   try {
-    const insertedPlayer = await psql.query('INSERT INTO players(name, positions) VALUES ($1, $2)', [name, positions]);
-    console.log(insertedPlayer);
-    return insertedPlayer.insertId;
+    const insertedPlayer = await psql.query('INSERT INTO players(name, positions) VALUES ($1, $2)', [name, positionsArr]);
+    //return insertedPlayer.insertId;
+    return insertedPlayer;
   } catch (e) {
     console.log(`Failed to add player: ${e}`);
   }
