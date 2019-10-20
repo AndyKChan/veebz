@@ -25,13 +25,10 @@ app.get('/makeTeams', async (req, res) => {
   res.render('makeTeams', { players });
 });
 
-let name;
-let position;
-app.post('/addPlayerForm', (req, res) => {
-  name = req.body.name;
-  position = req.body.position;
-  res.send()
-  res.end();
+app.post('/addPlayerForm', async (req, res) => {
+  console.log('call me');
+  const players = await db.createPlayer(req, res);
+  res.send({ players });
 });
 
 http.listen(PORT, () => console.log(`Listening on ${ PORT }`))
