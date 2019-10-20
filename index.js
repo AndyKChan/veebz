@@ -31,6 +31,18 @@ app.post('/addPlayerForm', async (req, res) => {
   res.render('makeTeams', { players });
 });
 
+app.get('/getPlayerById', async (req, res) => {
+  const player = await db.getPlayerById(req, res);
+  res.status(200).send(player);
+  //res.render('makeTeams', { player });
+});
+
+app.delete('/deletePlayerById', async (req, res) => {
+  await db.deletePlayer(req, res);
+  const players = await db.getPlayers(req,res);
+  res.render('makeTeams', { players });
+});
+
 http.listen(PORT, () => console.log(`Listening on ${ PORT }`))
 
 
