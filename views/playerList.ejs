@@ -9,7 +9,7 @@
     <meta name="author" content="">
     <link rel="icon" href="../../favicon.ico">
 
-    <title>makeTeams</title>
+    <title>Player List</title>
 
     <!-- Bootstrap core CSS -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
@@ -29,10 +29,13 @@
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav mr-auto">
                     <li class="nav-item active">
+                        <a class="nav-link" href="/playerList">Player List</a>
+                    </li>
+                    <li class="nav-item active">
                         <a class="nav-link" href="/addPlayer">Add a Player</a>
                     </li>
                     <li class="nav-item active">
-                        <a class="nav-link" href="/makeTeams">Make Teams</a>
+                        <a class="nav-link" href="/selectPlayers">Make Teams</a>
                     </li>
                 </ul>
                 <ul class="navbar-nav ml-auto">
@@ -45,20 +48,11 @@
 
     <div class="container">
       <div class="starter-template">
-        <h1>Add Players to Game</h1>
-        <div style="padding-bottom: 12px">
-        Selected <%=playersInGame.length%> 
-            <% if (playersInGame.length == 1) { %> 
-                player 
-            <% } else { %> 
-                players 
-            <% } %>
-        </div>
+        <h1>Player List</h1>
         <div class="players" style="margin-top:30px">
                 <table class="table">
                     <thead class="thead-dark">
                         <tr>
-                            <th scope="col"></th>
                             <th scope="col">#</th>
                             <th scope="col">Name</th>
                             <th scope="col">Positions</th>
@@ -67,12 +61,6 @@
                     <tbody>
                     <%for (let i = 0; i < players.length; i++) {%>
                         <tr>
-                            <td>
-                    <form method="post" action="/addPlayerToGame">
-                                    <input type="hidden" name="id" value="<%=players[i].id%>" />
-                <button type="submit" class="btn btn-primary" style="paddingTop: 20px;">+</button>
-            </form>
-                            </td>
                             <td scope="row"><%= i+1 %></td>
                             <td><%= players[i].name %></td>
                             <td><%= players[i].positions %></td>

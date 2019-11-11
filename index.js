@@ -21,23 +21,28 @@ app.get('/', (req, res) => {
 });
 
 app.get('/addPlayer', async (req, res) => {
-  res.render('addPlayerView');
+  res.render('addPlayer');
 });
 
-app.get('/makeTeams', async (req, res) => {
+app.get('/playerList', async (req, res) => {
   const players = await db.getPlayers(req,res);
+  res.render('playerList', { players });
+});
+
+app.get('/selectPlayers', async (req, res) => {
+  const players = await db.getAvailablePlayers(req,res);
   const playersInGame = await db.getPlayersInGame(req,res);
-  res.render('makeTeams', { players, playersInGame });
+  res.render('selectPlayers', { players, playersInGame });
 });
 
 app.get('/game', async (req, res) => {
   const players = await db.getPlayersInGame(req,res);
-  res.render('gameView', { players });
+  res.render('game', { players });
 });
 
 app.post('/addPlayerToGame', async (req, res) => {
   await db.addPlayerToGame(req, res);
-  res.redirect('/makeTeams');
+  res.redirect('/selectPlayers');
 });
 
 app.post('/removePlayerFromGame', async (req, res) => {
@@ -47,7 +52,7 @@ app.post('/removePlayerFromGame', async (req, res) => {
 
 app.post('/addPlayerForm', async (req, res) => {
   await db.createPlayer(req, res);
-  res.redirect('/makeTeams');
+  res.redirect('/selectPlayers');
 });
 
 app.get('/getPlayerById', async (req, res) => {
@@ -57,7 +62,7 @@ app.get('/getPlayerById', async (req, res) => {
 
 app.post('/deletePlayerById', async (req, res) => {
   await db.deletePlayer(req, res);
-  res.redirect('/makeTeams');
+  res.redirect('/selectPlayers');
 });
 
 http.listen(PORT, () => console.log(`Listening on ${ PORT }`))
