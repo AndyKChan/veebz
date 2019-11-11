@@ -20,16 +20,6 @@ const getPlayers = async (req, res) => {
   }
 };
 
-const getPlayerById = async (req, res) => {
-  try {
-    const { id } = req.query;
-    const { rows } = await psql.query('SELECT * FROM players where id = $1', [id]);
-    return rows;
-  } catch (e) {
-    console.log(e);
-  }
-};
-
 const updatePlayer = async (req, res) => {
   const id = parseInt(req.params.id)
   const { name, positions  } = req.body
@@ -47,7 +37,8 @@ const updatePlayer = async (req, res) => {
 
 const deletePlayer = async (req, res) => {
   try {
-    const { id } = req.query;
+    const { id } = req.body;
+    console.log(id);
     const res = await psql.query('DELETE FROM players WHERE id = $1', [id]); 
     return res;
   } catch (e) {
@@ -55,7 +46,60 @@ const deletePlayer = async (req, res) => {
   }
 };
 
+const getPlayerById = async (req, res) => {
+  try {
+    const { id } = req.query;
+    const { rows } = await psql.query('SELECT * FROM players where id = $1', [id]);
+    return rows;
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+const addPlayerToGame = async (req, res) => {
+  const { id } = req.body
+  try {
+    const insertedPlayer = await psql.query('UPDATE players SET selected = true WHERE id = $1', [id]);
+    return insertedPlayer;
+  } catch (e) {
+    console.log(`Failed to add players in game: ${e}`);
+  }
+};
+
+const removePlayerFromGame = async (req, res) => {
+  try {
+    const { id } = req.body;
+    console.log(id);
+    const res = await psql.query('UPDATE players SET selected = false WHERE id = $1', [id]); 
+    return res;
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+const getAvailablePlayers = async (req, res) => {
+  try {
+    const { rows } = await psql.query('SELECT * FROM players WHERE selected=false');
+    return rows;
+  } catch (e) {
+    console.log(`Failed to get players in game: ${e}`);
+  }
+};
+
+const getPlayersInGame = async (req, res) => {
+  try {
+    const { rows } = await psql.query('SELECT * FROM players WHERE selected=true');
+    return rows;
+  } catch (e) {
+    console.log(`Failed to get players in game: ${e}`);
+  }
+};
+
 module.exports =  {
+  addPlayerToGame,
+  removePlayerFromGame,
+  getPlayersInGame,
+  getAvailablePlayers,
   getPlayers,
   getPlayerById,
   createPlayer,
