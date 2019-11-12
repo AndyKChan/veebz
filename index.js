@@ -192,21 +192,6 @@ app.post('/preferredPositionalShuffle', async (req, res) => {
     if (!isLocked) {
       lockPlayerAlternativePosition(map, unassignedPlayers, player);
     }
-  // players.forEach(player => {
-  //   const preferredPos = player.preferred_position;
-  //   const posLockedPlayers = map.get(preferredPos);
-  //   if (posLockedPlayers == null) {
-  //     map.set(preferredPos, [player]);
-  //   } else if (preferredPos == 'setter' && posLockedPlayers.length < 2) {
-  //     map.set(preferredPos, [...posLockedPlayers, player]);
-  //   } else if (preferredPos == 'middle' && posLockedPlayers.length < 4) {
-  //     map.set(preferredPos, [...posLockedPlayers, player]);
-  //   } else if (preferredPos == 'power' && posLockedPlayers.length < 4) {
-  //     map.set(preferredPos, [...posLockedPlayers, player]);
-  //   } else if (preferredPos == 'offside' && posLockedPlayers.length < 2) {
-  //     map.set(preferredPos, [...posLockedPlayers, player]);
-  //   } else {
-      // lockAlternativePosition(map, unassignedPlayers, player);
   });
   const powers = map.get('power');
   const setters = map.get('setter');
@@ -240,24 +225,18 @@ app.post('/coedPositionalShuffle', async (req, res) => {
       males.push(player);
     }
   })
-  players = await shuffle(players);
   const map = new Map();
   const unassignedPlayers = [];
-  players.forEach(player => {
-    const preferredPos = player.preferred_position;
-    const posLockedPlayers = map.get(preferredPos);
-    if (posLockedPlayers == null) {
-      map.set(preferredPos, [player]);
-    } else if (preferredPos == 'setter' && posLockedPlayers.length < 2) {
-      map.set(preferredPos, [...posLockedPlayers, player]);
-    } else if (preferredPos == 'middle' && posLockedPlayers.length < 4) {
-      map.set(preferredPos, [...posLockedPlayers, player]);
-    } else if (preferredPos == 'power' && posLockedPlayers.length < 4) {
-      map.set(preferredPos, [...posLockedPlayers, player]);
-    } else if (preferredPos == 'offside' && posLockedPlayers.length < 2) {
-      map.set(preferredPos, [...posLockedPlayers, player]);
-    } else {
-      lockAlternativePosition(map, unassignedPlayers, player);
+  females.forEach(female => {
+    const isLocked = lockPlayerPreferredPosition(map, female);
+    if (!isLocked) {
+      lockPlayerAlternativePosition(map, unassignedPlayers, female);
+    }
+  });
+  males.forEach(male => {
+    const isLocked = lockPlayerPreferredPosition(map, male);
+    if (!isLocked) {
+      lockPlayerAlternativePosition(map, unassignedPlayers, male);
     }
   });
   const powers = map.get('power');
@@ -276,8 +255,9 @@ app.post('/coedPositionalShuffle', async (req, res) => {
   offsides[1]['currPos'] = 'offside';
   setters[0]['currPos'] = 'setter';
   setters[1]['currPos'] = 'setter';
-  const playersInTeam1 = [powers[0], powers[1], setters[0], offsides[0], middles[0], middles[1]];
-  const playersInTeam2 = [powers[2], powers[3], setters[1], offsides[1], middles[2], middles[3]];
+ 
+  const playersInTeam1 = [powers[0], powers[3], setters[0], offsides[0], middles[0], middles[3]];
+  const playersInTeam2 = [powers[2], powers[1], setters[1], offsides[1], middles[2], middles[1]];
   res.render('game', { players, playersInTeam1, playersInTeam2, unassignedPlayers });
 });
 
