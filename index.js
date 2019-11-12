@@ -42,9 +42,10 @@ app.get('/selectPlayers', async (req, res) => {
 
 app.get('/game', async (req, res) => {
   const players = await db.getPlayersInGame();
-  const playersInTeam1 = await db.getPlayersInTeam1(req, res);
-  const playersInTeam2 = await db.getPlayersInTeam2(req, res);
-  res.render('game', { players, playersInTeam1, playersInTeam2 });
+  const playersInTeam1 = await db.getPlayersInTeam1();
+  const playersInTeam2 = await db.getPlayersInTeam2();
+  const unassignedPlayers = await db.getUnassignedPlayers();
+  res.render('game', { players, playersInTeam1, playersInTeam2, unassignedPlayers });
 });
 
 app.post('/addPlayerToGame', async (req, res) => {
@@ -67,6 +68,11 @@ app.post('/switchPlayerFromTeam', async (req, res) => {
   res.redirect('/game');
 })
 
+app.post('/unassignPlayerFromTeam', async (req, res) => {
+  await db.unassignPlayerFromTeam(req,res);
+  res.redirect('/game');
+})
+
 app.post('/addPlayerForm', async (req, res) => {
   await db.createPlayer(req, res);
   res.redirect('/addPlayer');
@@ -81,6 +87,16 @@ app.post('/deletePlayerById', async (req, res) => {
   await db.deletePlayer(req, res);
   res.redirect('/selectPlayers');
 });
+
+app.post('/putPlayerInTeam1', async (req, res) => {
+  await db.putPlayerInTeam1(req.body.id);
+  res.redirect('/game');
+})
+
+app.post('/putPlayerInTeam2', async (req, res) => {
+  await db.putPlayerInTeam2(req.body.id);
+  res.redirect('/game');
+})
 
 app.post('/randomShuffle', async (req, res) => {
   // console.log(Math.floor(Math.random() * (8 - 1) + 1));

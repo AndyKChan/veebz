@@ -17,6 +17,11 @@
     <!-- Custom styles for this template -->
     <link href="css/main.css" rel="stylesheet">
 
+    <script text="text/JavaScript">
+        function addPlayer() {
+            window.location.href = "/addPlayer";
+        }
+    </script>
   </head>
 
   <body>
@@ -50,13 +55,18 @@
       <div class="starter-template">
         <h1>Add Players to Game</h1>
         <div style="padding-bottom: 12px">
-        Selected <%=playersInGame.length%> 
+        <%=playersInGame.length%> 
             <% if (playersInGame.length == 1) { %> 
                 player 
             <% } else { %> 
                 players 
             <% } %>
+            in game
         </div>
+        <% if (players.length == 0) { %> 
+            <h3>No available players to select</h3>
+                  <button class="btn btn-primary" onclick="addPlayer()">Add Player</button>
+        <% } else { %>
         <div class="players" style="margin-top:30px">
                 <table class="table">
                     <thead class="thead-dark">
@@ -86,6 +96,7 @@
                     </tbody>
                 </table>
         </div>
+        <% } %>
       </div>
 
     </div><!-- /.container -->

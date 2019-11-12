@@ -88,7 +88,7 @@ const removePlayerFromGame = async (req, res) => {
   try {
     const { id } = req.body;
     console.log(id);
-    const res = await psql.query('UPDATE players SET selected = false WHERE id = $1', [id]); 
+    const res = await psql.query('UPDATE players SET selected = false, team = 0 WHERE id = $1', [id]); 
     return res;
   } catch (e) {
     console.log(e);
@@ -153,11 +153,11 @@ const switchPlayerFromTeam = async (req) => {
     }
     return res;
   } catch (e) {
-    console.log(`Failed to swtich teams: ${e}`);
+    console.log(`Failed to switch teams: ${e}`);
   }
 };
 
-const getPlayersInTeam1 = async (req, res) => {
+const getPlayersInTeam1 = async () => {
   try {
     const { rows } = await psql.query('SELECT * FROM players WHERE team=1');
     return rows;
@@ -166,12 +166,31 @@ const getPlayersInTeam1 = async (req, res) => {
   }
 };
 
-const getPlayersInTeam2 = async (req, res) => {
+const getPlayersInTeam2 = async () => {
   try {
     const { rows } = await psql.query('SELECT * FROM players WHERE team=2');
     return rows;
   } catch (e) {
     console.log(`Failed to get players in game: ${e}`);
+  }
+};
+
+const getUnassignedPlayers = async () => {
+  try {
+    const { rows } = await psql.query('SELECT * FROM players WHERE team=0 AND selected=true');
+    return rows;
+  } catch (e) {
+    console.log(`Failed to get players in game: ${e}`);
+  }
+};
+
+const unassignPlayerFromTeam = async (req) => {
+  try {
+    const { id } = req.body;
+    const res = await psql.query('UPDATE players SET team = 0 WHERE id = $1', [id]); 
+    return res;
+  } catch (e) {
+    console.log(`Failed to unassign team: ${e}`);
   }
 };
 
@@ -190,5 +209,7 @@ module.exports =  {
   removePlayerFromTeam,
   putPlayerInTeam1,
   putPlayerInTeam2,
-  switchPlayerFromTeam
+  switchPlayerFromTeam,
+  getUnassignedPlayers,
+  unassignPlayerFromTeam
 };
