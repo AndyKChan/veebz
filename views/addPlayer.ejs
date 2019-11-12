@@ -16,7 +16,6 @@
 
     <!-- Custom styles for this template -->
     <link href="css/main.css" rel="stylesheet">
-
   </head>
 
   <body>
@@ -40,7 +39,7 @@
                     </ul>
                     <ul class="navbar-nav ml-auto">
                         <li class="nav-item active">
-                            <a class="nav-link" href="/game">Go to game</a>
+                            <a class="nav-link" href="/game">Go to Game</a>
                         </li>
                     </ul>
                 </div>
@@ -51,18 +50,34 @@
         <h1>Add a player</h1>
         <form method="post" action="/addPlayerForm">
             <div class="form-group row">
-                <label for="name" class="col-sm-2 col-form-label" style="text-align:left;">Name</label>
+                <label for="fname" class="col-sm-2 col-form-label" style="text-align:left;">First Name</label>
                 <div class="col-sm-10">
-                    <input type="text" class="form-control" name="name"/>
+                    <input type="text" class="form-control" name="fname"/>
+                </div>
+                <label for="lname" class="col-sm-2 col-form-label" style="text-align:left;">Last Name</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" name="lname"/>
                 </div>
             </div>
             <div class="form-group row">
-                <label for="positions" class="col-sm-2 col-form-label" style="text-align:left;">Positions</label>
-                <div class="col-sm-10">
-                    <input type="text" class="form-control" name="positions"/>
+                <label for="preferredPosition" class="col-sm-2 col-form-label" style="text-align:left;">Preferred Position</label>
+                <div class="col-sm-10" style="text-align: left;">
+                    <input type="radio" name="preferredPosition" value="power">Power<br>
+                    <input type="radio" name="preferredPosition" value="middle">Middle<br>
+                    <input type="radio" name="preferredPosition" value="offside">Offside<br>
+                    <input type="radio" name="preferredPosition" value="setter">Setter 
                 </div>
             </div>
-            <button type="submit" class="btn btn-primary" style="paddingTop: 20px;">Add playa</button>
+            <div class="form-group row">
+                <label for="alernatePositions" class="col-sm-2 col-form-label" style="text-align:left;">Alternate positions</label>
+                <div class="col-sm-10" style="text-align: left;">
+                    <input type="checkbox" name="power" value="power">Power<br>
+                    <input type="checkbox" name="middle" value="middle">Middle<br>
+                    <input type="checkbox" name="offside" value="offside">Offside<br>
+                    <input type="checkbox" name="setter" value="setter">Setter 
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary" style="paddingTop: 20px;">Add player</button>
         </form>
     </div><!-- /.container -->
 

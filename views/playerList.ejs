@@ -40,7 +40,7 @@
                 </ul>
                 <ul class="navbar-nav ml-auto">
                     <li class="nav-item active">
-                        <a class="nav-link" href="/game">Go to game</a>
+                        <a class="nav-link" href="/game">Go to Game</a>
                     </li>
                 </ul>
             </div>
@@ -55,15 +55,17 @@
                         <tr>
                             <th scope="col">#</th>
                             <th scope="col">Name</th>
-                            <th scope="col">Positions</th>
+                            <th scope="col">Preferred</th>
+                            <th scope="col">Alternates</th>
                         </tr>
                     </thead>
                     <tbody>
                     <%for (let i = 0; i < players.length; i++) {%>
                         <tr>
                             <td scope="row"><%= i+1 %></td>
-                            <td><%= players[i].name %></td>
-                            <td><%= players[i].positions %></td>
+                            <td><%= players[i].fname %> <%= players[i].lname %></td>
+                            <td><%= players[i].preferred_position %></td>
+                            <td><%= players[i].alternate_positions %></td>
                         </tr>
                         <% } %>
                     </tbody>

@@ -24,6 +24,11 @@ app.get('/addPlayer', async (req, res) => {
   res.render('addPlayer');
 });
 
+app.get('/getPlayers', async (req, res) => {
+  const players = await db.getPlayers(req,res);
+  return res.json(players);
+});
+
 app.get('/playerList', async (req, res) => {
   const players = await db.getPlayers(req,res);
   res.render('playerList', { players });
@@ -31,13 +36,15 @@ app.get('/playerList', async (req, res) => {
 
 app.get('/selectPlayers', async (req, res) => {
   const players = await db.getAvailablePlayers(req,res);
-  const playersInGame = await db.getPlayersInGame(req,res);
+  const playersInGame = await db.getPlayersInGame();
   res.render('selectPlayers', { players, playersInGame });
 });
 
 app.get('/game', async (req, res) => {
-  const players = await db.getPlayersInGame(req,res);
-  res.render('game', { players });
+  const players = await db.getPlayersInGame();
+  const playersInTeam1 = await db.getPlayersInTeam1(req, res);
+  const playersInTeam2 = await db.getPlayersInTeam2(req, res);
+  res.render('game', { players, playersInTeam1, playersInTeam2 });
 });
 
 app.post('/addPlayerToGame', async (req, res) => {
@@ -50,9 +57,19 @@ app.post('/removePlayerFromGame', async (req, res) => {
   res.redirect('/game');
 });
 
+app.post('/removePlayerFromTeam', async (req, res) => {
+  await db.removePlayerFromTeam(req,res);
+  res.redirect('/game');
+});
+
+app.post('/switchPlayerFromTeam', async (req, res) => {
+  await db.switchPlayerFromTeam(req,res);
+  res.redirect('/game');
+})
+
 app.post('/addPlayerForm', async (req, res) => {
   await db.createPlayer(req, res);
-  res.redirect('/selectPlayers');
+  res.redirect('/addPlayer');
 });
 
 app.get('/getPlayerById', async (req, res) => {
@@ -63,6 +80,22 @@ app.get('/getPlayerById', async (req, res) => {
 app.post('/deletePlayerById', async (req, res) => {
   await db.deletePlayer(req, res);
   res.redirect('/selectPlayers');
+});
+
+app.post('/randomShuffle', async (req, res) => {
+  // console.log(Math.floor(Math.random() * (8 - 1) + 1));
+  const players = await db.getPlayersInGame();
+  for (let i = players.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [players[i], players[j]] = [players[j], players[i]];
+  }
+  for (let i = 0; i < players.length / 2 - 1; i++) {
+    await db.putPlayerInTeam1(players[i].id);
+  }
+  for (let i = players.length / 2; i < players.length - 1; i++) {
+    await db.putPlayerInTeam2(players[i].id);
+  }
+  res.redirect('/game');
 });
 
 http.listen(PORT, () => console.log(`Listening on ${ PORT }`))

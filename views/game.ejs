@@ -17,6 +17,17 @@
     <!-- Custom styles for this template -->
     <link href="css/main.css" rel="stylesheet">
 
+    <!-- <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script type="text/JavaScript">
+        var instance = axios.create({
+            baseURL: "http://localhost:5000" //use your express server's url(address) and port here
+        });
+        function randomShuffle() {
+            console.log('hello');
+            console.log(axios);
+            instance.get("/getPlayers").then(res => console.log(res));
+        }
+    </script> -->
   </head>
 
   <body>
@@ -40,7 +51,7 @@
                     </ul>
                     <ul class="navbar-nav ml-auto">
                         <li class="nav-item active">
-                            <a class="nav-link" href="/game">Go to game</a>
+                            <a class="nav-link" href="/game">Go to Game</a>
                         </li>
                     </ul>
                 </div>
@@ -50,47 +61,88 @@
     <div class="container">
       <div class="starter-template">
         <h1>Game</h1>
-        <!-- <form method="post" action="/addPlayerToGame">
-            <div class="form-group row">
-                <label for="name" class="col-sm-2 col-form-label" style="text-align:left;">Name</label>
-                <div class="col-sm-10">
-                    <input type="text" class="form-control" name="name"/>
-                </div>
-            </div>
-            <div class="form-group row">
-                <label for="positions" class="col-sm-2 col-form-label" style="text-align:left;">Positions</label>
-                <div class="col-sm-10">
-                    <input type="text" class="form-control" name="positions"/>
-                </div>
-            </div>
-            <button type="submit" class="btn btn-primary" style="paddingTop: 20px;">Add player to game</button>
-        </form> -->
-        
         <div class="players" style="margin-top:30px">
             <table class="table">
                 <thead class="thead-dark">
                     <tr>
-                        <th scope="col"></th>
+                        <th scope="col">Team 1</th>
                         <th scope="col">#</th>
                         <th scope="col">Name</th>
-                        <th scope="col">Positions</th>
+                        <th scope="col">Position</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <%for (let i = 0; i < players.length; i++) {%>
+                    <%for (let i = 0; i < playersInTeam1.length; i++) {%>
                         <tr>
                             <td>
-                                <form method="post" action="/removePlayerFromGame">
-                                    <input type="hidden" name="id" value="<%=players[i].id%>"/>
-                                    <button type="submit" class="btn btn-primary" style="paddingTop: 20px;">-</button>
+                                <form method="post" action="/switchPlayerFromTeam">
+                                    <input type="hidden" name="id" value="<%=playersInTeam1[i].id%>"/>
+                                    <input type="hidden" name="team" value="<%=playersInTeam1[i].team%>"/>
+                                    <button type="submit" class="btn btn-primary" style="paddingTop: 20px;">Switch</button>
                                 </form>
                             </td>
                             <td scope="row"><%= i+1 %></td>
-                            <td><%= players[i].name %></td>
-                            <td><%= players[i].positions %></td> 
+                            <td><%= playersInTeam1[i].fname %> <%= playersInTeam1[i].lname %></td>
+                            <td><%= playersInTeam1[i].preferred_position%></td> 
                         </tr>
                     <% } %>
                 </tbody>
+            </table>
+            <table class="table">
+                <thead class="thead-dark">
+                    <tr>
+                        <th scope="col">Team 2</th>
+                        <th scope="col">#</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Position</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <%for (let i = 0; i < playersInTeam2.length; i++) {%>
+                        <tr>
+                            <td>
+                                <form method="post" action="/switchPlayerFromTeam">
+                                    <input type="hidden" name="id" value="<%=playersInTeam2[i].id%>"/>
+                                    <input type="hidden" name="team" value="<%=playersInTeam2[i].team%>"/>
+                                    <button type="submit" class="btn btn-primary" style="paddingTop: 20px;">Switch</button>
+                                </form>
+                            </td>
+                            <td scope="row"><%= i+1 %></td>
+                            <td><%= playersInTeam2[i].fname %> <%= playersInTeam2[i].lname %></td>
+                            <td><%= playersInTeam2[i].preferred_position%></td> 
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+            <div id="selectedPlayers">
+                <h2 style="text-align: left">Selected Players: </h2>
+                <%for (let i = 0; i < players.length; i++) {%>
+                    <p>
+                        <form method="post" action="/removePlayerFromGame" style="text-align: left;">
+                            <input type="hidden" name="id" value="<%=players[i].id%>"/>
+                            <button type="submit" class="btn btn-secondary" style="margin-right: 12px;">-</button>
+                                    <%= players[i].fname %> <%= players[i].lname %>: 
+                                <%= players[i].preferred_position %><% if (players[i].alternate_positions != null) { %>,<% } %><%= players[i].alternate_positions %>
+                        </form>
+                    </p>
+                <% } %>
+            </div>
+            <table class="table" id="shuffleBtns">
+                <td id="randomShuffleBtn">
+                    <form method="post" action="/randomShuffle">
+                        <button type="submit" class="btn btn-primary" style="margin-top: 20px;">Randomize</button>
+                    </form>
+                </td>
+                <td id="positionalShuffleBtn">
+                    <form method="post" action="/positionalShuffle">
+                        <button type="submit" class="btn btn-primary" style="margin-top: 20px;">Positional Shuffle</button>
+                    </form>
+                </td>
+                <td id="balanceAndPositionalShuffleBtn">
+                    <form method="post" action="/balanceAndPositionalShuffle">
+                        <button type="submit" class="btn btn-primary" style="margin-top: 20px;">Balanced Shuffle</button>
+                    </form>
+                </td>
             </table>
         </div>
       </div>

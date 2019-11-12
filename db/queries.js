@@ -1,10 +1,28 @@
 const { psql } = require('./psql.js');
 
 const createPlayer = async (req, res) => {
-  const { name, positions } = req.body
-  const positionsArr = [positions];
+  const { fname, lname, preferredPosition, power, middle, offside, setter } = req.body
+  if (fname == null) {
+    return false;
+  }
+  if (preferredPosition == null) {
+    return false;
+  }
+  const alternatePositions = [];
+  if (power == "power" && preferredPosition != "power") {
+    alternatePositions.push("power");
+  }
+  if (middle == "middle" && preferredPosition != "middle") {
+    alternatePositions.push("middle");
+  }
+  if (offside == "offside" && preferredPosition != "offside") {
+    alternatePositions.push("offside");
+  }
+  if (setter == "setter" && preferredPosition != "setter") {
+    alternatePositions.push("setter");
+  }
   try {
-    const insertedPlayer = await psql.query('INSERT INTO players(name, positions) VALUES ($1, $2)', [name, positionsArr]);
+    const insertedPlayer = await psql.query('INSERT INTO players(preferred_position, fname, lname, alternate_positions) VALUES ($1, $2, $3, $4)', [preferredPosition, fname, lname, alternatePositions]);
     return insertedPlayer;
   } catch (e) {
     console.log(`Failed to add player: ${e}`);
@@ -77,6 +95,17 @@ const removePlayerFromGame = async (req, res) => {
   }
 };
 
+const removePlayerFromTeam = async (req, res) => {
+  try {
+    const { id } = req.body;
+    console.log(id);
+    const res = await psql.query('UPDATE players SET team = 0 WHERE id = $1', [id]); 
+    return res;
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 const getAvailablePlayers = async (req, res) => {
   try {
     const { rows } = await psql.query('SELECT * FROM players WHERE selected=false');
@@ -86,9 +115,60 @@ const getAvailablePlayers = async (req, res) => {
   }
 };
 
-const getPlayersInGame = async (req, res) => {
+const getPlayersInGame = async () => {
   try {
     const { rows } = await psql.query('SELECT * FROM players WHERE selected=true');
+    return rows;
+  } catch (e) {
+    console.log(`Failed to get players in game: ${e}`);
+  }
+};
+
+const putPlayerInTeam1 = async (id) => {
+  try {
+    const res = await psql.query('UPDATE players SET team = 1 WHERE id = $1', [id]); 
+    return res;
+  } catch (e) {
+    console.log(`Failed to add player to team 1: ${e}`);
+  }
+};
+
+const putPlayerInTeam2 = async (id) => {
+  try {
+    const res = await psql.query('UPDATE players SET team = 2 WHERE id = $1', [id]); 
+    return res;
+  } catch (e) {
+    console.log(`Failed to add player to team 2: ${e}`);
+  }
+};
+
+const switchPlayerFromTeam = async (req) => {
+  try {
+    const { id, team } = req.body;
+    let res;
+    if (team == 1) {
+      res = await psql.query('UPDATE players SET team = 2 WHERE id = $1', [id]); 
+    } else {
+      res = await psql.query('UPDATE players SET team = 1 WHERE id = $1', [id]); 
+    }
+    return res;
+  } catch (e) {
+    console.log(`Failed to swtich teams: ${e}`);
+  }
+};
+
+const getPlayersInTeam1 = async (req, res) => {
+  try {
+    const { rows } = await psql.query('SELECT * FROM players WHERE team=1');
+    return rows;
+  } catch (e) {
+    console.log(`Failed to get players in game: ${e}`);
+  }
+};
+
+const getPlayersInTeam2 = async (req, res) => {
+  try {
+    const { rows } = await psql.query('SELECT * FROM players WHERE team=2');
     return rows;
   } catch (e) {
     console.log(`Failed to get players in game: ${e}`);
@@ -105,4 +185,10 @@ module.exports =  {
   createPlayer,
   updatePlayer,
   deletePlayer,
+  getPlayersInTeam1,
+  getPlayersInTeam2,
+  removePlayerFromTeam,
+  putPlayerInTeam1,
+  putPlayerInTeam2,
+  switchPlayerFromTeam
 };
