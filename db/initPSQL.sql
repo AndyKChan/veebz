@@ -3,21 +3,22 @@ CREATE TABLE players (
     fname VARCHAR (50) NOT NULL,
     lname VARCHAR (50) NOT NULL,
     preferred_position VARCHAR(30) NOT NULL,
-    alternate_positions TEXT[],
+    alternative_positions TEXT[],
+    gender VARCHAR (2),
     selected BOOLEAN DEFAULT FALSE,
     team INT
 );
 
-INSERT INTO players(fname, lname, preferred_position, alternate_positions) VALUES
-    ('Andy', 'Chan', 'middle', ARRAY ['power']),
-    ('Isis', 'Ling', 'power', ARRAY ['offside', 'setter']),
-    ('Dan', 'Hsiao', 'power', ARRAY ['offside', 'middle']),
-    ('Sadie', 'Bui', 'middle', NULL),
-    ('Vincent', 'Tran', 'middle', ARRAY ['offside', 'power']),
-    ('Mitchell', 'Ma', 'power', ARRAY ['offside', 'middle']),
-    ('Matt', 'Nee', 'setter', ARRAY ['offside', 'middle', 'power']),
-    ('Beka', 'Chen', 'power', ARRAY ['offside']),
-    ('Derek', 'Yip', 'setter', ARRAY ['offside', 'power']),
-    ('Tony', 'Fang', 'middle', ARRAY ['setter', 'offside', 'power']),
-    ('Mark', 'Ho', 'setter', ARRAY ['offside', 'power']),
-    ('Alvin', '', 'power', ARRAY ['offside', 'middle']);
+INSERT INTO players(fname, lname, preferred_position, alternative_positions, gender) VALUES
+    ('Andy', 'Chan', 'middle', ARRAY ['power'], 'M'),
+    ('Isis', 'Ling', 'power', ARRAY ['offside', 'setter'], 'F'),
+    ('Dan', 'Hsiao', 'power', ARRAY ['offside', 'middle'], 'M'),
+    ('Sadie', 'Bui', 'middle', NULL, 'F'),
+    ('Vincent', 'Tran', 'middle', ARRAY ['offside', 'power'], 'M'),
+    ('Mitchell', 'Ma', 'power', ARRAY ['offside', 'middle'], 'M'),
+    ('Matt', 'Nee', 'setter', ARRAY ['offside', 'middle', 'power'], 'M'),
+    ('Beka', 'Chen', 'power', ARRAY ['offside'], 'F'),
+    ('Derek', 'Yip', 'setter', ARRAY ['offside', 'power'], 'M'),
+    ('Tony', 'Fang', 'middle', ARRAY ['setter', 'offside', 'power'], 'M'),
+    ('Mark', 'Ho', 'setter', ARRAY ['offside', 'power'], 'M'),
+    ('Alvin', '', 'power', ARRAY ['offside', 'middle'], 'M');

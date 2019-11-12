@@ -61,6 +61,13 @@
     <div class="container">
       <div class="starter-template">
         <h1>Game</h1>
+        <% if (players.length < 12) { %>
+        <p style="color:red">
+            Please invite more players into the game.
+        </p>
+            <% } else { %>
+            <!-- <p style="text-align: left;">Possibilities:</p> -->
+            <% } %>
         <div class="players" style="margin-top:30px">
             <table class="table">
                 <thead class="thead-dark">
@@ -88,7 +95,7 @@
                             </td>
                             <td scope="row"><%= i+1 %></td>
                             <td><%= playersInTeam1[i].fname %> <%= playersInTeam1[i].lname %></td>
-                            <td><%= playersInTeam1[i].preferred_position%></td> 
+                            <td><%= playersInTeam1[i].currPos %></td> 
                         </tr>
                     <% } %>
                 </tbody>
@@ -119,7 +126,7 @@
                             </td>
                             <td scope="row"><%= i+1 %></td>
                             <td><%= playersInTeam2[i].fname %> <%= playersInTeam2[i].lname %></td>
-                            <td><%= playersInTeam2[i].preferred_position%></td> 
+                            <td><%= playersInTeam2[i].currPos %></td> 
                         </tr>
                     <% } %>
                 </tbody>
@@ -146,7 +153,7 @@
                                     </form>
                                     <div style="margin-top: 7px;">
                                         <%= unassignedPlayers[i].fname %> <%= unassignedPlayers[i].lname %>: 
-                                        <%= unassignedPlayers[i].preferred_position %><% if (unassignedPlayers[i].alternate_positions != null) { %>,<% } %><%= unassignedPlayers[i].alternate_positions %>
+                                        <%= unassignedPlayers[i].preferred_position %><% if (unassignedPlayers[i].alternative_positions != null) { %>,<% } %><%= unassignedPlayers[i].alternative_positions %>
                                     </div>
                                 </p>
                             </td>
@@ -161,11 +168,21 @@
                         <button type="submit" class="btn btn-primary" style="margin-top: 20px;">Randomize</button>
                     </form>
                 </td>
-                <td id="positionalShuffleBtn">
-                    <form method="post" action="/positionalShuffle">
+                <td id="preferredPositionalShuffleBtn">
+                    <form method="post" action="/preferredPositionalShuffle">
                         <button type="submit" class="btn btn-primary" style="margin-top: 20px;">Positional Shuffle</button>
                     </form>
                 </td>
+                <td id="coedPositionalShuffleBtn">
+                    <form method="post" action="/coedPositionalShuffle">
+                        <button type="submit" class="btn btn-primary" style="margin-top: 20px;">Co-ed Positional Shuffle</button>
+                    </form>
+                </td>
+                <!-- <td id="positionalShuffleBtn">
+                    <form method="post" action="/positionalShuffle">
+                        <button type="submit" class="btn btn-primary" style="margin-top: 20px;">Positional Shuffle</button>
+                    </form>
+                </td> -->
                 <td id="balanceAndPositionalShuffleBtn">
                     <form method="post" action="/balanceAndPositionalShuffle">
                         <button type="submit" class="btn btn-primary" style="margin-top: 20px;">Balanced Shuffle</button>

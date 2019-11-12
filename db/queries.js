@@ -22,7 +22,7 @@ const createPlayer = async (req, res) => {
     alternatePositions.push("setter");
   }
   try {
-    const insertedPlayer = await psql.query('INSERT INTO players(preferred_position, fname, lname, alternate_positions) VALUES ($1, $2, $3, $4)', [preferredPosition, fname, lname, alternatePositions]);
+    const insertedPlayer = await psql.query('INSERT INTO players(preferred_position, fname, lname, alternative_positions) VALUES ($1, $2, $3, $4)', [preferredPosition, fname, lname, alternatePositions]);
     return insertedPlayer;
   } catch (e) {
     console.log(`Failed to add player: ${e}`);
