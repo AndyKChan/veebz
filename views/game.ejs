@@ -62,12 +62,13 @@
       <div class="starter-template">
         <h1>Game</h1>
         <% if (players.length < 12) { %>
-        <p style="color:red">
-            Please invite more players into the game.
-        </p>
-            <% } else { %>
-            <!-- <p style="text-align: left;">Possibilities:</p> -->
-            <% } %>
+            <p style="color:red">
+                Please invite more players into the game.
+            </p>
+        <% } %>
+        <% if (possibilities != null) { %>
+            <p style="text-align: left;">Possibilities: <%= possibilities %></p>
+        <% } %>
         <div class="players" style="margin-top:30px">
             <table class="table">
                 <thead class="thead-dark">
@@ -184,7 +185,7 @@
                     </form>
                 </td> -->
                 <td id="balanceAndPositionalShuffleBtn">
-                    <form method="post" action="/balanceAndPositionalShuffle">
+                    <form method="post" action="/balanceShuffle">
                         <button type="submit" class="btn btn-primary" style="margin-top: 20px;">Balanced Shuffle</button>
                     </form>
                 </td>
