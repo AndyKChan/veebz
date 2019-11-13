@@ -194,7 +194,17 @@ const unassignPlayerFromTeam = async (req) => {
   }
 };
 
+const getPlayerSkill = async (pid) => {
+  try {
+    const res = await psql.query('SELECT * FROM player_skill WHERE pid = $1', [pid]);
+    return res;
+  } catch (e) {
+    console.log(`Failed to get player position score: ${e}`);
+  }
+};
+
 module.exports =  {
+  getPlayerSkill,
   addPlayerToGame,
   removePlayerFromGame,
   getPlayersInGame,

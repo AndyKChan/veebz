@@ -281,6 +281,35 @@ const getAllPermutations = async (players, numOfPlayers) => {
   }
   return permutations;
 }
+
+const getPlayerScoreByPosition = async (pid, pos) => {
+  const { 
+    blocking, 
+    digging, 
+    receiving, 
+    power_hitting, 
+    middle_hitting, 
+    offside_hitting,
+    tipping,
+    serving,
+    passing,
+    setting
+  } = await getPlayerSkill(pid);
+  let positionalScore;
+  if (pos == 'middle') {
+    positionalScore = blocking + digging + receiving + middle_hitting + tipping + serving + passing;
+  }
+  if (pos == 'setter') {
+    positionalScore = blocking + digging + receiving + tipping + serving + passing + setting;
+  }
+  if (pos == 'power') {
+    positionalScore = blocking + digging + receiving + power_hitting + tipping + serving + passing; 
+  }
+  if (pos == 'offside') {
+    positionalScore = blocking + digging + receiving + offside_hitting + tipping + serving + passing; 
+  }
+  return positionalScore;
+}
 app.post('/balanceShuffle', async (req, res) => {
   const players = await db.getPlayersInGame();
   if (players.length < 12) {
