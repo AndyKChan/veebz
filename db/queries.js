@@ -77,7 +77,7 @@ const getPlayerById = async (req, res) => {
 const addPlayerToGame = async (req, res) => {
   const { id } = req.body
   try {
-    const insertedPlayer = await psql.query('UPDATE players SET selected = true WHERE id = $1', [id]);
+    const insertedPlayer = await psql.query('UPDATE players SET selected = true, team = 0 WHERE id = $1', [id]);
     return insertedPlayer;
   } catch (e) {
     console.log(`Failed to add players in game: ${e}`);
@@ -196,8 +196,8 @@ const unassignPlayerFromTeam = async (req) => {
 
 const getPlayerSkill = async (pid) => {
   try {
-    const res = await psql.query('SELECT * FROM player_skill WHERE pid = $1', [pid]);
-    return res;
+    const { rows }= await psql.query('SELECT * FROM player_skill WHERE pid = $1', [pid]);
+    return rows[0];
   } catch (e) {
     console.log(`Failed to get player position score: ${e}`);
   }

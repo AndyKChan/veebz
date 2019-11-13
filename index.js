@@ -107,23 +107,35 @@ const shuffle = async (players) => {
   return players;
 }
 
-app.post('/randomShuffle', async (req, res) => {
-  let players = await db.getPlayersInGame();
-  players = await shuffle(players);
-  for (let i = players.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [players[i], players[j]] = [players[j], players[i]];
-  }
-  const midInd = Math.ceil(players.length / 2);
-  for (let i = 0; i < players.length-1; i++) {
-    if (i < midInd) {
-      await db.putPlayerInTeam1(players[i].id);
-    } else {
-      await db.putPlayerInTeam2(players[i].id);
-    }
-  }
-  res.redirect('/game');
-});
+// app.post('/randomShuffle', async (req, res) => {
+//   let players = await db.getPlayersInGame();
+//   players = await shuffle(players);
+//   for (let i = players.length - 1; i > 0; i--) {
+//     const j = Math.floor(Math.random() * (i + 1));
+//     [players[i], players[j]] = [players[j], players[i]];
+//   }
+//   let midInd;
+//   let end;
+//   if (players.length > 12) {
+//     midInd = 6;
+//     end = 11;
+//     console.log('helo');
+//   } else {
+//     midInd = Math.ceil(players.length / 2);
+//     end = players.length - 1;
+//   }
+//   let count = 0;
+//   for (let i = 0; i < end; i++) {
+//     if (i < midInd) {
+//       await db.putPlayerInTeam1(players[i].id);
+//     } else {
+//       await db.putPlayerInTeam2(players[i].id);
+//     }
+//     count++;
+//   }
+//     console.log(count);
+//   res.redirect('/game');
+// });
 
 const lockPlayerAlternativePosition = (map, unassignedPlayers, player) => {
   const alternatePositions = player.alternative_positions;
@@ -213,7 +225,8 @@ app.post('/preferredPositionalShuffle', async (req, res) => {
   const middles = map.get('middle');
   const playersInTeam1 = [powers[0], powers[1], setters[0], offsides[0], middles[0], middles[1]];
   const playersInTeam2 = [powers[2], powers[3], setters[1], offsides[1], middles[2], middles[3]];
-  res.render('game', { players, playersInTeam1, playersInTeam2, unassignedPlayers });
+  const possibilities = null;
+  res.render('game', { players, playersInTeam1, playersInTeam2, unassignedPlayers, possibilities });
 });
 
 app.post('/coedPositionalShuffle', async (req, res) => {
@@ -252,7 +265,8 @@ app.post('/coedPositionalShuffle', async (req, res) => {
   const middles = map.get('middle');
   const playersInTeam1 = [powers[0], powers[3], setters[0], offsides[0], middles[0], middles[3]];
   const playersInTeam2 = [powers[2], powers[1], setters[1], offsides[1], middles[2], middles[1]];
-  res.render('game', { players, playersInTeam1, playersInTeam2, unassignedPlayers });
+  const possibilities = null;
+  res.render('game', { players, playersInTeam1, playersInTeam2, unassignedPlayers, possibilities });
 });
 
 const getAllPermutations = async (players, numOfPlayers) => {
@@ -294,7 +308,7 @@ const getPlayerScoreByPosition = async (pid, pos) => {
     serving,
     passing,
     setting
-  } = await getPlayerSkill(pid);
+  } = await db.getPlayerSkill(pid);
   let positionalScore;
   if (pos == 'middle') {
     positionalScore = blocking + digging + receiving + middle_hitting + tipping + serving + passing;
@@ -310,12 +324,13 @@ const getPlayerScoreByPosition = async (pid, pos) => {
   }
   return positionalScore;
 }
+
 app.post('/balanceShuffle', async (req, res) => {
   const players = await db.getPlayersInGame();
-  if (players.length < 12) {
-    res.redirect('game');
-    return;
-  }
+  // if (players.length < 12) {
+  //   res.redirect('game');
+  //   return;
+  // }
   const numOfPlayers = players.length >= 12 ? 12 : players.length;
   const permutations = await getAllPermutations(players, numOfPlayers);
   const possibilities = permutations.size;
