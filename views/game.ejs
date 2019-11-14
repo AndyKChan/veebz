@@ -60,7 +60,16 @@
 
     <div class="container">
       <div class="starter-template">
-        <h1>Game</h1>
+        <div id='title' style="display: flex; flex-direction:row;">
+            <div style="display: flex; justify-content: center;">
+                <h1>Game</h1>
+            </div>
+            <div style="display: flex;align-self: center;margin-left: auto;">
+                <form method="get" action="/unassignPlayersInGame" style="margin-right: 4px">
+                    <button class="btn btn-secondary">Unassign players</button>
+                </form>
+            </div>
+        </div>
         <% if (players.length < 12) { %>
             <p style="color:red">
                 Please invite more players into the game.
@@ -70,10 +79,9 @@
             <p style="text-align: left;">Possibilities: <%= possibilities %></p>
         <% } %>
         <div class="players" style="margin-top:30px">
-            <table class="table">
+            <table class="table" style="margin-bottom: 60px">
                 <thead class="thead-dark">
                     <tr>
-                        <th scope="col" style="width: 15%;">Team 1</th>
                         <th scope="col">#</th>
                         <th scope="col">Name</th>
                         <th scope="col">Position</th>
@@ -82,7 +90,7 @@
                 <tbody>
                     <%for (let i = 0; i < playersInTeam1.length; i++) {%>
                         <tr>
-                            <td style="display: inline-flex;">
+                            <!-- <td style="display: inline-flex;">
                                 <form method="post" action="/switchPlayerFromTeam" style="margin-right: 4px">
                                     <input type="hidden" name="id" value="<%=playersInTeam1[i].id%>"/>
                                     <input type="hidden" name="team" value="<%=playersInTeam1[i].team%>"/>
@@ -93,7 +101,7 @@
                                     <input type="hidden" name="team" value="<%=playersInTeam1[i].team%>"/>
                                     <button type="submit" class="btn btn-primary" style="paddingTop: 20px;">Unassign</button>
                                 </form>
-                            </td>
+                            </td> -->
                             <td scope="row"><%= i+1 %></td>
                             <td><%= playersInTeam1[i].fname %> <%= playersInTeam1[i].lname %></td>
                             <td><%= playersInTeam1[i].currPos %></td> 
@@ -101,10 +109,10 @@
                     <% } %>
                 </tbody>
             </table>
-            <table class="table">
+            <h3 style="text-align: center; color:red; padding-bottom: 60px;">VS</h3>
+            <table class="table" style="margin-bottom: 60px">
                 <thead class="thead-dark">
                     <tr>
-                        <th scope="col" style="width: 15%">Team 2</th>
                         <th scope="col">#</th>
                         <th scope="col">Name</th>
                         <th scope="col">Position</th>
@@ -113,18 +121,18 @@
                 <tbody>
                     <%for (let i = 0; i < playersInTeam2.length; i++) {%>
                         <tr>
-                            <td style="display: inline-flex;">
-                                <form method="post" action="/switchPlayerFromTeam" style="margin-right: 4px">
+                            <!-- <td style="display: inline-flex;"> -->
+                                <!-- <form method="post" action="/switchPlayerFromTeam" style="margin-right: 4px">
                                     <input type="hidden" name="id" value="<%=playersInTeam2[i].id%>"/>
                                     <input type="hidden" name="team" value="<%=playersInTeam2[i].team%>"/>
                                     <button type="submit" class="btn btn-primary" style="paddingTop: 20px;">Switch</button>
-                                </form>
-                                <form method="post" action="/unassignPlayerFromTeam">
+                                </form> -->
+                                <!-- <form method="post" action="/unassignPlayerFromTeam">
                                     <input type="hidden" name="id" value="<%=playersInTeam2[i].id%>"/>
                                     <input type="hidden" name="team" value="<%=playersInTeam2[i].team%>"/>
                                     <button type="submit" class="btn btn-primary" style="paddingTop: 20px;">Unassign</button>
-                                </form>
-                            </td>
+                                </form> -->
+                            <!-- </td> -->
                             <td scope="row"><%= i+1 %></td>
                             <td><%= playersInTeam2[i].fname %> <%= playersInTeam2[i].lname %></td>
                             <td><%= playersInTeam2[i].currPos %></td> 
@@ -144,14 +152,14 @@
                                         <input type="hidden" name="id" value="<%=unassignedPlayers[i].id%>"/>
                                         <button type="submit" class="btn btn-danger" style="margin-right: 12px;">Remove</button>
                                     </form>
-                                    <form method="post" action="/putPlayerInTeam1" style="margin-right: 4px; text-align: left;">
+                                    <!-- <form method="post" action="/putPlayerInTeam1" style="margin-right: 4px; text-align: left;">
                                         <input type="hidden" name="id" value="<%=unassignedPlayers[i].id%>"/>
                                         <button type="submit" class="btn btn-secondary" style="margin-right: 12px;">Team 1</button>
                                     </form>
                                     <form method="post" action="/putPlayerInTeam2" style="margin-right: 4px; text-align: left;">
                                         <input type="hidden" name="id" value="<%=unassignedPlayers[i].id%>"/>
                                         <button type="submit" class="btn btn-secondary" style="margin-right: 12px;">Team 2</button>
-                                    </form>
+                                    </form> -->
                                     <div style="margin-top: 7px;">
                                         <%= unassignedPlayers[i].fname %> <%= unassignedPlayers[i].lname %>: 
                                         <%= unassignedPlayers[i].preferred_position %><% if (unassignedPlayers[i].alternative_positions != null) { %>,<% } %><%= unassignedPlayers[i].alternative_positions %>

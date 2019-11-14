@@ -69,6 +69,10 @@ app.post('/switchPlayerFromTeam', async (req, res) => {
   res.redirect('/game');
 })
 
+app.get('/unassignPlayersInGame', async (req, res) => {
+  res.redirect('/game');
+});
+
 app.post('/unassignPlayerFromTeam', async (req, res) => {
   await db.unassignPlayerFromTeam(req,res);
   res.redirect('/game');
