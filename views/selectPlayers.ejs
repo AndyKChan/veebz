@@ -53,7 +53,16 @@
 
     <div class="container">
       <div class="starter-template">
-        <h1>Add Players to Game</h1>
+        <div id='title' style="display: flex; flex-direction:row;">
+            <div style="display: flex; justify-content: center;">
+                <h1>Add players</h1>
+            </div>
+            <div style="display: flex;align-self: center;margin-left: auto;">
+                <form method="get" action="/game" style="margin-right: 4px">
+                    <button class="btn btn-secondary">Go to the Game</button>
+                </form>
+            </div>
+        </div>
         <div style="padding-bottom: 12px">
         <%=playersInGame.length%> 
             <% if (playersInGame.length == 1) { %> 

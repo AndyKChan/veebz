@@ -194,17 +194,30 @@ const unassignPlayerFromTeam = async (req) => {
   }
 };
 
-const getPlayerSkill = async (pid) => {
+const getPlayerPositionalSkill = async (pid, pos) => {
   try {
-    const { rows }= await psql.query('SELECT * FROM player_skill WHERE pid = $1', [pid]);
-    return rows[0];
+    let res;
+    res = await psql.query('SELECT * FROM player_skill WHERE pid = $1', [pid]);
+    if (pos == 'middle') {
+      res = res.rows[0].middle_score;
+    }
+    if (pos == 'power') {
+      res = res.rows[0].power_score;
+    }
+    if (pos == 'setter') {
+      res = res.rows[0].setter_score;
+    }
+    if (pos == 'offside') {
+      res = res.rows[0].offside_score;
+    }
+    return res;
   } catch (e) {
     console.log(`Failed to get player position score: ${e}`);
   }
 };
 
 module.exports =  {
-  getPlayerSkill,
+  getPlayerPositionalSkill,
   addPlayerToGame,
   removePlayerFromGame,
   getPlayersInGame,
