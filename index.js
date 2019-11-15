@@ -10,6 +10,8 @@ const db = require('./db/queries');
 
 const PORT = process.env.PORT || 5000
 
+let totalPermutations = [];
+
 app.use(express.static(path.join(__dirname, 'public')))
 app.set('views', path.join(__dirname, 'views'))
 app.set('view engine', 'ejs')
@@ -47,6 +49,7 @@ app.get('/game', async (req, res) => {
   const unassignedPlayers = await db.getUnassignedPlayers();
   const possibilities = null;
   const skill_difference = null;
+  totalPermutations = [];
   res.render('game', { players, playersInTeam1, playersInTeam2, unassignedPlayers, possibilities, skill_difference });
 });
 
@@ -141,8 +144,73 @@ const shuffle = async (players) => {
 //     console.log(count);
 //   res.redirect('/game');
 // });
-
 const lockPlayerAlternativePosition = (map, unassignedPlayers, player) => {
+  const alternatePositions = player.alternative_positions;
+  if (alternatePositions == null) {
+    unassignedPlayers.push(player);
+    return;
+  }
+  let isAssigned = false;
+  let i = 0;
+  while (!isAssigned && i < alternatePositions.length) {
+    const alternatePos = alternatePositions[i];
+      const alternatePosLockedPlayers = map[alternatePos];
+      if (alternatePosLockedPlayers == null) {
+        player['currPos'] = alternatePos;
+        map[alternatePos] = [player];
+        isAssigned = true;
+      } else if (alternatePos == 'setter' && alternatePosLockedPlayers.length < 2) {
+        player['currPos'] = alternatePos;
+        map[alternatePos] = [...alternatePosLockedPlayers, player];
+        isAssigned = true;
+      } else if (alternatePos == 'middle' && alternatePosLockedPlayers.length < 4) {
+        player['currPos'] = alternatePos;
+        map[alternatePos] = [...alternatePosLockedPlayers, player];
+        isAssigned = true;
+      } else if (alternatePos == 'power' && alternatePosLockedPlayers.length < 4) {
+        player['currPos'] = alternatePos;
+        map[alternatePos] = [...alternatePosLockedPlayers, player];
+        isAssigned = true;
+      } else if (alternatePos == 'offside' && alternatePosLockedPlayers.length < 2) {
+        player['currPos'] = alternatePos;
+        map[alternatePos] = [...alternatePosLockedPlayers, player];
+        isAssigned = true;
+      }
+      i++;
+  }
+  if (!isAssigned) {
+    unassignedPlayers.push(player);
+  }
+};
+
+const lockPlayerPreferredPosition = (map, player) => {
+    const preferredPos = player.preferred_position;
+    const posLockedPlayers = map[preferredPos];
+    if (posLockedPlayers == null) {
+      player['currPos'] = preferredPos;
+      map[preferredPos] = [player];
+      return true;
+    } else if (preferredPos == 'setter' && posLockedPlayers.length < 2) {
+      player['currPos'] = preferredPos;
+      map[preferredPos] = [...posLockedPlayers, player];
+      return true;
+    } else if (preferredPos == 'middle' && posLockedPlayers.length < 4) {
+      player['currPos'] = preferredPos;
+      map[preferredPos] = [...posLockedPlayers, player];
+      return true;
+    } else if (preferredPos == 'power' && posLockedPlayers.length < 4) {
+      player['currPos'] = preferredPos;
+      map[preferredPos] = [...posLockedPlayers, player];
+      return true;
+    } else if (preferredPos == 'offside' && posLockedPlayers.length < 2) {
+      player['currPos'] = preferredPos;
+      map[preferredPos] = [...posLockedPlayers, player];
+      return true;
+    } else {
+      return false;
+    }
+};
+const oldlockPlayerAlternativePosition = (map, unassignedPlayers, player) => {
   const alternatePositions = player.alternative_positions;
   if (alternatePositions == null) {
     unassignedPlayers.push(player);
@@ -181,7 +249,7 @@ const lockPlayerAlternativePosition = (map, unassignedPlayers, player) => {
   }
 };
 
-const lockPlayerPreferredPosition = (map, player) => {
+const oldlockPlayerPreferredPosition = (map, player) => {
     const preferredPos = player.preferred_position;
     const posLockedPlayers = map.get(preferredPos);
     if (posLockedPlayers == null) {
@@ -219,9 +287,9 @@ app.post('/preferredPositionalShuffle', async (req, res) => {
   const map = new Map();
   const unassignedPlayers = [];
   players.forEach(player => {
-    const isLocked = lockPlayerPreferredPosition(map, player);
+    const isLocked = oldlockPlayerPreferredPosition(map, player);
     if (!isLocked) {
-      lockPlayerAlternativePosition(map, unassignedPlayers, player);
+      oldlockPlayerAlternativePosition(map, unassignedPlayers, player);
     }
   });
   const powers = map.get('power');
@@ -233,6 +301,22 @@ app.post('/preferredPositionalShuffle', async (req, res) => {
   const playersInTeam2 = [powers[2], powers[3], setters[1], offsides[1], middles[2], middles[3]];
   const possibilities = null;
   const skill_difference = null;
+  if (!map.get('power') || map.get('power').length != 4) {
+    res.redirect('game');
+    return;
+  }
+  if (!map.get('middle') || map.get('middle').length != 4) {
+    res.redirect('game');
+    return;
+  }
+  if (!map.get('offside') || map.get('offside').length != 2) {
+    res.redirect('game');
+    return;
+  }
+  if (!map.get('setter') || map.get('setter').length != 2) {
+    res.redirect('game');
+    return;
+  }
   res.render('game', { players, playersInTeam1, playersInTeam2, unassignedPlayers, possibilities, skill_difference });
 });
 
@@ -255,25 +339,42 @@ app.post('/coedPositionalShuffle', async (req, res) => {
   const map = new Map();
   const unassignedPlayers = [];
   females.forEach(female => {
-    const isLocked = lockPlayerPreferredPosition(map, female);
+    const isLocked = oldlockPlayerPreferredPosition(map, female);
     if (!isLocked) {
-      lockPlayerAlternativePosition(map, unassignedPlayers, female);
+      oldlockPlayerAlternativePosition(map, unassignedPlayers, female);
     }
   });
   males.forEach(male => {
-    const isLocked = lockPlayerPreferredPosition(map, male);
+    const isLocked = oldlockPlayerPreferredPosition(map, male);
     if (!isLocked) {
-      lockPlayerAlternativePosition(map, unassignedPlayers, male);
+      oldlockPlayerAlternativePosition(map, unassignedPlayers, male);
     }
   });
   const powers = map.get('power');
   const setters = map.get('setter');
   const offsides = map.get('offside');
   const middles = map.get('middle');
+ 
   const playersInTeam1 = [powers[0], powers[3], setters[0], offsides[0], middles[0], middles[3]];
   const playersInTeam2 = [powers[2], powers[1], setters[1], offsides[1], middles[2], middles[1]];
   const possibilities = null;
   const skill_difference = null;
+  if (!map.get('power') || map.get('power').length != 4) {
+    res.redirect('game');
+    return;
+  }
+  if (!map.get('middle') || map.get('middle').length != 4) {
+    res.redirect('game');
+    return;
+  }
+  if (!map.get('offside') || map.get('offside').length != 2) {
+    res.redirect('game');
+    return;
+  }
+  if (!map.get('setter') || map.get('setter').length != 2) {
+    res.redirect('game');
+    return;
+  }
   res.render('game', { players, playersInTeam1, playersInTeam2, unassignedPlayers, possibilities, skill_difference });
 });
 
@@ -308,8 +409,47 @@ const assignPlayerPosition = (map, player, positions) => {
   }
   return isAssigned;
 };
+// const getAllPermutations = async (players, numOfPlayers) => {
+//   const permutations = new Map();
+//   let count = 0;
+//   // for all players get their positions
+//   for (let i = 0; i < numOfPlayers; i++) {
+//     const alternativePositions = players[i].alternative_positions || null;
+//     const positions = alternativePositions != null ? 
+//        [players[i].preferred_position, ...alternativePositions] : 
+//        [players[i].preferred_position];
+//        // for each player's positions assign the player to each one and make all team outcomes
+//     for (let j = 0; j < positions.length; j++) {
+//       const map = new Map();
+//       const unassignedPlayers = [];
+//       map.set(positions[j], [players[i]]);
+//       // for each player other than the targetted player, assign them a position they play
+//       for (let k = 0; k < numOfPlayers; k++) {
+//         if (players[k] == players[i]) {
+//           continue;
+//         }
+//         // const isAssigned = await assignPlayerPosition(map, players[k], positions);
+//         // if (!isAssigned) {
+//         //   continue;
+//         // }
+//         // permutations.set(count, map);
+//         // count++;
+//         const isLocked = lockPlayerPreferredPosition(map, players[k]);
+//         if (!isLocked) {
+//           lockPlayerAlternativePosition(map, unassignedPlayers, players[k]);
+//         }
+//         if (unassignedPlayers.length <= 0) {
+//           permutations.set(count, map);
+//           count++;
+//         }
+//       }
+//     }
+//   }
+//   return permutations;
+// }
+
 const getAllPermutations = async (players, numOfPlayers) => {
-  const permutations = new Map();
+  const permutations = [];
   let count = 0;
   // for all players get their positions
   for (let i = 0; i < numOfPlayers; i++) {
@@ -319,9 +459,9 @@ const getAllPermutations = async (players, numOfPlayers) => {
        [players[i].preferred_position];
        // for each player's positions assign the player to each one and make all team outcomes
     for (let j = 0; j < positions.length; j++) {
-      const map = new Map();
+      const map = [];
       const unassignedPlayers = [];
-      map.set(positions[j], [players[i]]);
+      map[positions[j]] = [players[i]];
       // for each player other than the targetted player, assign them a position they play
       for (let k = 0; k < numOfPlayers; k++) {
         if (players[k] == players[i]) {
@@ -337,9 +477,21 @@ const getAllPermutations = async (players, numOfPlayers) => {
         if (!isLocked) {
           lockPlayerAlternativePosition(map, unassignedPlayers, players[k]);
         }
+        
+        if (!map['power'] || map['power'].length != 4) {
+          continue;
+        }
+        if (!map['middle'] || map['middle'].length != 4) {
+          continue;
+        }
+        if (!map['offside'] || map['offside'].length != 2) {
+          continue;
+        }
+        if (!map['setter'] || map['setter'].length != 2) {
+          continue;
+        }
         if (unassignedPlayers.length <= 0) {
-          permutations.set(count, map);
-          count++;
+          permutations.push(map);
         }
       }
     }
@@ -380,6 +532,12 @@ const getPlayerScoreByPosition = async (pid, pos) => {
   }
 }
 
+function Comparator(a, b) {
+  if (a['difference'] < b['difference']) return 1;
+  if (a['difference'] > b['difference']) return -1;
+  return 0;
+}
+
 app.post('/balanceShuffle', async (req, res) => {
   const players = await db.getPlayersInGame();
   // const players = await db.getPlayers();
@@ -387,32 +545,44 @@ app.post('/balanceShuffle', async (req, res) => {
     res.redirect('game');
     return;
   }
+  let i;
+  if (totalPermutations && totalPermutations.length != 0)  {
+    const possibilities = totalPermutations.length;
+    const unassignedPlayers = [];
+    for (i = 12; i < players.length; i++) {
+      unassignedPlayers.push(players[i]);
+    }
+    const map = totalPermutations.pop();
+    const powers = map['power'];
+    const setters = map['setter'];
+    const offsides = map['offside'];
+    const middles = map['middle'];
+    powers[0].currPos = 'power';
+    powers[1].currPos = 'power';
+    powers[2].currPos = 'power';
+    powers[3].currPos = 'power';
+    middles[0].currPos = 'middle';
+    middles[1].currPos = 'middle';
+    middles[2].currPos = 'middle';
+    middles[3].currPos = 'middle';
+    offsides[0].currPos = 'offside';
+    offsides[1].currPos = 'offside';
+    setters[0].currPos = 'setter';
+    setters[1].currPos = 'setter';
+    const playersInTeam1 = [powers[0], powers[1], setters[0], offsides[0], middles[0], middles[1]];
+    const playersInTeam2 = [powers[2], powers[3], setters[1], offsides[1], middles[2], middles[3]];
+    const skill_difference = map['difference'];
+    res.render('game', { players, playersInTeam1, playersInTeam2, unassignedPlayers, possibilities, skill_difference });
+    return;
+  }
   const numOfPlayers = players.length >= 12 ? 12 : players.length;
   const permutations = await getAllPermutations(players, numOfPlayers);
-  let i;
-  let minDifference = 999999999;
-  for (i = 0; i < permutations.size; i++) {
-    const currPossibility = permutations.get(i);
-    const powers = currPossibility.get('power');
-    const setters = currPossibility.get('setter');
-    const offsides = currPossibility.get('offside');
-    const middles = currPossibility.get('middle');
-    if (powers.length != 4) {
-      permutations.delete(i);
-      continue;
-    }
-    if (setters.length != 2) {
-      permutations.delete(i);
-      continue;
-    }
-    if (offsides.length != 2) {
-      permutations.delete(i);
-      continue;
-    }
-    if (middles.length != 4) {
-      permutations.delete(i);
-      continue;
-    }
+  permutations.forEach(currPossibility => {
+    const powers = currPossibility['power'];
+    const setters = currPossibility['setter'];
+    const offsides = currPossibility['offside'];
+    const middles = currPossibility['middle'];
+
     try {
       const team1Score = powers[0].power_score +
         powers[1].power_score +
@@ -427,48 +597,113 @@ app.post('/balanceShuffle', async (req, res) => {
         middles[3].middle_score +
         offsides[1].offside_score +
         setters[1].setter_score;
-      // const team1Score = await db.getPlayerPositionalSkill(powers[0].id, 'power') +
-      // await db.getPlayerPositionalSkill(powers[1].id, 'power') +
-      // await db.getPlayerPositionalSkill(middles[0].id, 'middle') +
-      // await db.getPlayerPositionalSkill(middles[1].id, 'middle') +
-      // await db.getPlayerPositionalSkill(offsides[0].id, 'offside') +
-      // await db.getPlayerPositionalSkill(setters[0].id, 'setter');
-
-      // const team2Score = await db.getPlayerPositionalSkill(offsides[1].id, 'offside') +
-      // await db.getPlayerPositionalSkill(setters[1].id, 'setter') +
-      // await db.getPlayerPositionalSkill(powers[2].id, 'power') +
-      // await db.getPlayerPositionalSkill(powers[3].id, 'power') +
-      // await db.getPlayerPositionalSkill(middles[2].id, 'middle') +
-      // await db.getPlayerPositionalSkill(middles[3].id, 'middle');
 
       const difference = Math.abs(team1Score - team2Score);
-      currPossibility.set('difference', difference);
-      // if (difference < minDifference) {
-      //   //getting the smallest difference for now.. think of how to sort array later
-      //   permutations.set(0, currPossibility);
-      //   minDifference = difference;
-      // }
+      currPossibility['difference'] = difference;
     } catch (e) {
       console.log('Failed to get team scores: ', e);
     }
-  }
-  const possibilities = permutations.size;
+  });
+  const possibilities = permutations.length;
   const unassignedPlayers = [];
   for (i = 12; i < players.length; i++) {
     unassignedPlayers.push(players[i]);
   }
-  const randomNum = Math.floor(Math.random() * Math.floor(possibilities-1));
-  console.log(randomNum);
-  const map = permutations.get(randomNum);
-  const powers = map.get('power');
-  const setters = map.get('setter');
-  const offsides = map.get('offside');
-  const middles = map.get('middle');
+  permutations.sort(Comparator);
+  const map = permutations[possibilities-1];
+  const powers = map['power'];
+  const setters = map['setter'];
+  const offsides = map['offside'];
+  const middles = map['middle'];
+  powers[0].currPos = 'power';
+  powers[1].currPos = 'power';
+  powers[2].currPos = 'power';
+  powers[3].currPos = 'power';
+  middles[0].currPos = 'middle';
+  middles[1].currPos = 'middle';
+  middles[2].currPos = 'middle';
+  middles[3].currPos = 'middle';
+  offsides[0].currPos = 'offside';
+  offsides[1].currPos = 'offside';
+  setters[0].currPos = 'setter';
+  setters[1].currPos = 'setter';
   const playersInTeam1 = [powers[0], powers[1], setters[0], offsides[0], middles[0], middles[1]];
   const playersInTeam2 = [powers[2], powers[3], setters[1], offsides[1], middles[2], middles[3]];
-  const skill_difference = map.get('difference');
+  const skill_difference = map['difference'];
+  totalPermutations = permutations;
+  totalPermutations.pop();
   res.render('game', { players, playersInTeam1, playersInTeam2, unassignedPlayers, possibilities, skill_difference });
 });
+// app.post('/balanceShuffle', async (req, res) => {
+//   const players = await db.getPlayersInGame();
+//   // const players = await db.getPlayers();
+//   if (players.length < 12) {
+//     res.redirect('game');
+//     return;
+//   }
+//   const numOfPlayers = players.length >= 12 ? 12 : players.length;
+//   const permutations = await getAllPermutations(players, numOfPlayers);
+//   let i;
+//   let minDifference = 999999999;
+//   for (i = 0; i < permutations.size; i++) {
+//     const currPossibility = permutations.get(i);
+//     const powers = currPossibility.get('power');
+//     const setters = currPossibility.get('setter');
+//     const offsides = currPossibility.get('offside');
+//     const middles = currPossibility.get('middle');
+//     if (powers.length != 4) {
+//       permutations.delete(i);
+//       continue;
+//     }
+//     if (setters.length != 2) {
+//       permutations.delete(i);
+//       continue;
+//     }
+//     if (offsides.length != 2) {
+//       permutations.delete(i);
+//       continue;
+//     }
+//     if (middles.length != 4) {
+//       permutations.delete(i);
+//       continue;
+//     }
+//     try {
+//       const team1Score = powers[0].power_score +
+//         powers[1].power_score +
+//         middles[0].middle_score +
+//         middles[1].middle_score +
+//         offsides[0].offside_score +
+//         setters[0].setter_score;
+
+//       const team2Score = powers[2].power_score +
+//         powers[3].power_score +
+//         middles[2].middle_score +
+//         middles[3].middle_score +
+//         offsides[1].offside_score +
+//         setters[1].setter_score;
+
+//       const difference = Math.abs(team1Score - team2Score);
+//       currPossibility.set('difference', difference);
+//     } catch (e) {
+//       console.log('Failed to get team scores: ', e);
+//     }
+//   }
+//   const possibilities = permutations.size;
+//   const unassignedPlayers = [];
+//   for (i = 12; i < players.length; i++) {
+//     unassignedPlayers.push(players[i]);
+//   }
+//   const randomNum = Math.floor(Math.random() * Math.floor(possibilities-1));
+//   const map = permutations.get(randomNum);
+//   const powers = map.get('power');
+//   const setters = map.get('setter');
+//   const offsides = map.get('offside');
+//   const middles = map.get('middle');
+//   const playersInTeam1 = [powers[0], powers[1], setters[0], offsides[0], middles[0], middles[1]];
+//   const playersInTeam2 = [powers[2], powers[3], setters[1], offsides[1], middles[2], middles[3]];
+//   const skill_difference = map.get('difference');
+//   res.render('game', { players, playersInTeam1, playersInTeam2, unassignedPlayers, possibilities, skill_difference });
+// });
 
 app.post('/getMostBalancedTeam', async (req, res) => {
   const players = await db.getPlayersInGame();
