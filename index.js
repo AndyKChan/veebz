@@ -228,6 +228,7 @@ app.post('/preferredPositionalShuffle', async (req, res) => {
   const setters = map.get('setter');
   const offsides = map.get('offside');
   const middles = map.get('middle');
+
   const playersInTeam1 = [powers[0], powers[1], setters[0], offsides[0], middles[0], middles[1]];
   const playersInTeam2 = [powers[2], powers[3], setters[1], offsides[1], middles[2], middles[3]];
   const possibilities = null;
@@ -442,6 +443,96 @@ app.post('/balanceShuffle', async (req, res) => {
 
       const difference = Math.abs(team1Score - team2Score);
       currPossibility.set('difference', difference);
+      // if (difference < minDifference) {
+      //   //getting the smallest difference for now.. think of how to sort array later
+      //   permutations.set(0, currPossibility);
+      //   minDifference = difference;
+      // }
+    } catch (e) {
+      console.log('Failed to get team scores: ', e);
+    }
+  }
+  const possibilities = permutations.size;
+  const unassignedPlayers = [];
+  for (i = 12; i < players.length; i++) {
+    unassignedPlayers.push(players[i]);
+  }
+  const randomNum = Math.floor(Math.random() * Math.floor(possibilities-1));
+  console.log(randomNum);
+  const map = permutations.get(randomNum);
+  const powers = map.get('power');
+  const setters = map.get('setter');
+  const offsides = map.get('offside');
+  const middles = map.get('middle');
+  const playersInTeam1 = [powers[0], powers[1], setters[0], offsides[0], middles[0], middles[1]];
+  const playersInTeam2 = [powers[2], powers[3], setters[1], offsides[1], middles[2], middles[3]];
+  const skill_difference = map.get('difference');
+  res.render('game', { players, playersInTeam1, playersInTeam2, unassignedPlayers, possibilities, skill_difference });
+});
+
+app.post('/getMostBalancedTeam', async (req, res) => {
+  const players = await db.getPlayersInGame();
+  // const players = await db.getPlayers();
+  if (players.length < 12) {
+    res.redirect('game');
+    return;
+  }
+  const numOfPlayers = players.length >= 12 ? 12 : players.length;
+  const permutations = await getAllPermutations(players, numOfPlayers);
+  let i;
+  let minDifference = 999999999;
+  for (i = 0; i < permutations.size; i++) {
+    const currPossibility = permutations.get(i);
+    const powers = currPossibility.get('power');
+    const setters = currPossibility.get('setter');
+    const offsides = currPossibility.get('offside');
+    const middles = currPossibility.get('middle');
+    if (powers.length != 4) {
+      permutations.delete(i);
+      continue;
+    }
+    if (setters.length != 2) {
+      permutations.delete(i);
+      continue;
+    }
+    if (offsides.length != 2) {
+      permutations.delete(i);
+      continue;
+    }
+    if (middles.length != 4) {
+      permutations.delete(i);
+      continue;
+    }
+    try {
+      const team1Score = powers[0].power_score +
+        powers[1].power_score +
+        middles[0].middle_score +
+        middles[1].middle_score +
+        offsides[0].offside_score +
+        setters[0].setter_score;
+
+      const team2Score = powers[2].power_score +
+        powers[3].power_score +
+        middles[2].middle_score +
+        middles[3].middle_score +
+        offsides[1].offside_score +
+        setters[1].setter_score;
+      // const team1Score = await db.getPlayerPositionalSkill(powers[0].id, 'power') +
+      // await db.getPlayerPositionalSkill(powers[1].id, 'power') +
+      // await db.getPlayerPositionalSkill(middles[0].id, 'middle') +
+      // await db.getPlayerPositionalSkill(middles[1].id, 'middle') +
+      // await db.getPlayerPositionalSkill(offsides[0].id, 'offside') +
+      // await db.getPlayerPositionalSkill(setters[0].id, 'setter');
+
+      // const team2Score = await db.getPlayerPositionalSkill(offsides[1].id, 'offside') +
+      // await db.getPlayerPositionalSkill(setters[1].id, 'setter') +
+      // await db.getPlayerPositionalSkill(powers[2].id, 'power') +
+      // await db.getPlayerPositionalSkill(powers[3].id, 'power') +
+      // await db.getPlayerPositionalSkill(middles[2].id, 'middle') +
+      // await db.getPlayerPositionalSkill(middles[3].id, 'middle');
+
+      const difference = Math.abs(team1Score - team2Score);
+      currPossibility.set('difference', difference);
       if (difference < minDifference) {
         //getting the smallest difference for now.. think of how to sort array later
         permutations.set(0, currPossibility);
@@ -452,15 +543,21 @@ app.post('/balanceShuffle', async (req, res) => {
     }
   }
   const possibilities = permutations.size;
-  // console.log(permutations[0])
-  // console.log('@#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
-  // permutations.sort((a, b) => a.get(i).get('difference') < b.get(i).get('difference'));
-  // console.log(permutations[0])
   const unassignedPlayers = [];
   for (i = 12; i < players.length; i++) {
     unassignedPlayers.push(players[i]);
   }
-  const map = permutations.get(0);
+  let map;
+  // for (i = 0; i < 10; i++) {
+  //   map = permutations.get(i);
+  //   const difference = map.get('difference');
+  //   if (difference < minDifference) {
+  //     //getting the smallest difference for now.. think of how to sort array later
+  //     permutations.set(0, map);
+  //     minDifference = difference;
+  //   } 
+  // }
+  map = permutations.get(0);
   const powers = map.get('power');
   const setters = map.get('setter');
   const offsides = map.get('offside');
